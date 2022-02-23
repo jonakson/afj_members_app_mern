@@ -7,12 +7,7 @@ const {
   deleteMember,
 } = require("../controllers/memberController");
 
-router.get("/", getMembers);
-
-router.post("/", setMember);
-
-router.put("/:id", updateMember);
-
-router.delete("/:id", deleteMember);
+router.route("/").get(getMembers).post(setMember);
+router.route("/:id").put(updateMember).delete(deleteMember);
 
 module.exports = router;
