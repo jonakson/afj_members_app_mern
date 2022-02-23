@@ -36,6 +36,11 @@ const memberSchema = mongoose.Schema(
       type: Date,
       required: [true, "Please, add a entry date."],
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+      required: [true, "Please, select if it's Admin."],
+    },
   },
   {
     timestamps: true,

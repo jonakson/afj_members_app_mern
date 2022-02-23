@@ -1,72 +1,100 @@
 const asyncHandler = require("express-async-handler");
 const Member = require("../models/memberModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
-// @desc    Get Members
-// @route   GET /api/v1/members
-// @access  Private
-const getMembers = asyncHandler(async (req, res) => {
-  const members = await Member.find();
-  res.status(200).json(members);
-});
-
-// @desc    Set Member
+// @desc    Register Member
 // @route   POST /api/v1/members
-// @access  Private
-const setMember = asyncHandler(async (req, res) => {
-  if (!req.body.text) {
-    // Bad request
+// @access  Public
+const registerMember = asyncHandler(async (req, res) => {
+  // Take needed fields from the body request.
+  const {
+    idDocumentNumber,
+    email,
+    password,
+    name,
+    surname,
+    phone,
+    dob,
+    entryDate,
+    isAdmin,
+  } = req.body;
+
+  //Check if all fields are filled.
+  if (
+    !idDocumentNumber ||
+    !email ||
+    !password ||
+    !name ||
+    !surname ||
+    !phone ||
+    !dob ||
+    !entryDate ||
+    !isAdmin
+  ) {
     res.status(400);
-    throw new Error("Please add a text field.");
+    throw new Error("Please add all fields.");
   }
 
+  // Check if Member exists.
+  if (await Member.findOne({ idDocumentNumber })) {
+    res.status(400);
+    throw new Error("Member already exists.");
+  }
+
+  // Hash the password.
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Create Member
   const member = await Member.create({
-    text: req.body.text,
+    idDocumentNumber,
+    email,
+    password: hashedPassword,
+    name,
+    surname,
+    phone,
+    dob,
+    entryDate,
+    isAdmin,
   });
 
-  res.status(200).json(member);
+  // Check if the Member was successfully created.
+  if (member) {
+    res.status(201).json({
+      _id: member.id,
+      idDocumentNumber: member.idDocumentNumber,
+      email: member.email,
+      password: member.password,
+      name: member.name,
+      surname: member.surname,
+      phone: member.phone,
+      dob: member.dob,
+      entryDate: member.entryDate,
+      isAdmin: member.isAdmin,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid Member Data.");
+  }
 });
 
-// @desc    Update Member
-// @route   PUT /api/v1/members/:id
-// @access  Private
-const updateMember = asyncHandler(async (req, res) => {
-  const member = await Member.findById(req.params.id);
-
-  if (!member) {
-    res.status(400);
-    throw new Error("Member not found.");
-  }
-
-  const updatedMember = await Member.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    {
-      new: true,
-    }
-  );
-
-  res.status(200).json(updatedMember);
+// @desc    Authenticate Member
+// @route   POST /api/v1/members/login
+// @access  Public
+const loginMember = asyncHandler(async (req, res) => {
+  res.status(200).json({ message: "Login Member" });
 });
 
-// @desc    Delete Member
-// @route   DELETE /api/v1/members/:id
+// @desc    Get Member data
+// @route   GET /api/v1/members/me
 // @access  Private
-const deleteMember = asyncHandler(async (req, res) => {
-  const member = await Member.findById(req.params.id);
-
-  if (!member) {
-    res.status(400);
-    throw new Error("Member not found.");
-  }
-
-  await member.remove();
-
-  res.status(200).json({ id: req.params.id });
+const getMe = asyncHandler(async (req, res) => {
+  res.status(200).json({ message: "Member data display" });
 });
 
 module.exports = {
-  getMembers,
-  setMember,
-  updateMember,
-  deleteMember,
+  registerMember,
+  loginMember,
+  getMe,
 };

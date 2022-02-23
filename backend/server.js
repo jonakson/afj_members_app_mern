@@ -14,6 +14,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/v1/members", require("./routes/memberRoutes"));
+app.use("/api/v1/memberships", require("./routes/membershipRoutes"));
+app.use("/api/v1/activities", require("./routes/activityRoutes"));
+app.use("/api/v1/payments", require("./routes/paymentRoutes"));
+app.use("/api/v1/participants", require("./routes/particpantRoutes"));
 
 app.use(errorHandler);
 
