@@ -1,10 +1,12 @@
 const asyncHandler = require("express-async-handler");
+const Member = require("../models/memberModel");
 
 // @desc    Get Members
 // @route   GET /api/v1/members
 // @access  Private
 const getMembers = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: "Get Members" });
+  const members = await Member.find();
+  res.status(200).json(members);
 });
 
 // @desc    Set Member
@@ -17,21 +19,49 @@ const setMember = asyncHandler(async (req, res) => {
     throw new Error("Please add a text field.");
   }
 
-  res.status(200).json({ message: "Set Member" });
+  const member = await Member.create({
+    text: req.body.text,
+  });
+
+  res.status(200).json(member);
 });
 
 // @desc    Update Member
 // @route   PUT /api/v1/members/:id
 // @access  Private
 const updateMember = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: `Update Member ${req.params.id}` });
+  const member = await Member.findById(req.params.id);
+
+  if (!member) {
+    res.status(400);
+    throw new Error("Member not found.");
+  }
+
+  const updatedMember = await Member.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json(updatedMember);
 });
 
 // @desc    Delete Member
 // @route   DELETE /api/v1/members/:id
 // @access  Private
 const deleteMember = asyncHandler(async (req, res) => {
-  res.status(200).json({ message: `Delete Member ${req.params.id}` });
+  const member = await Member.findById(req.params.id);
+
+  if (!member) {
+    res.status(400);
+    throw new Error("Member not found.");
+  }
+
+  await member.remove();
+
+  res.status(200).json({ id: req.params.id });
 });
 
 module.exports = {
