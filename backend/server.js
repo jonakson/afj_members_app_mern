@@ -13,14 +13,17 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Routes for the different endpoints.
 app.use("/api/v1/members", require("./routes/memberRoutes"));
 app.use("/api/v1/memberships", require("./routes/membershipRoutes"));
 app.use("/api/v1/activities", require("./routes/activityRoutes"));
 app.use("/api/v1/payments", require("./routes/paymentRoutes"));
 app.use("/api/v1/participants", require("./routes/particpantRoutes"));
 
+// Express error handler.
 app.use(errorHandler);
 
+// Express listening port.
 app.listen(port, () => {
   console.log(`Server started on por ${port}`);
 });

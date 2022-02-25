@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const {
+  viewAllMembers,
   registerMember,
   loginMember,
   getMe,
 } = require("../controllers/memberController");
+const { protect } = require("../middleware/authMidelware");
 
+router.get("/", viewAllMembers);
+router.get("/me", protect, getMe);
 router.post("/", registerMember);
 router.post("/login", loginMember);
-router.get("/me", getMe);
-
-//router.route("/").get(getMembers).post(setMember);
-//router.route("/:id").put(updateMember).delete(deleteMember);
 
 module.exports = router;

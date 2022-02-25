@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
 
+const PAYMENTTYPE = ["MEMBERSHIP", "ACTIVITY"];
+
 const paymentSchema = mongoose.Schema(
   {
-    idDocumentNumber: {
+    member: {
       member: {
         type: mongoose.Schema.Types.ObjectId,
         require: true,
@@ -12,10 +14,19 @@ const paymentSchema = mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         require: true,
         ref: "Membership",
+        ref: "Activity",
+      },
+      paymentType: {
+        type: String,
+        require: true,
+        enum: PAYMENTTYPE,
       },
       paymentDate: {
         type: Date,
         required: [true, "Please, add a the payment date."],
+      },
+      comment: {
+        type: String,
       },
     },
   },

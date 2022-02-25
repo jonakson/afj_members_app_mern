@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const participantSchema = mongoose.Schema(
   {
-    idDocumentNumber: {
+    member: {
       member: {
         type: mongoose.Schema.Types.ObjectId,
         require: true,
