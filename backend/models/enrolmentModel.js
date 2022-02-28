@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const participantSchema = mongoose.Schema(
+const enrolmentSchema = mongoose.Schema(
   {
     member: {
       member: {
@@ -8,7 +8,7 @@ const participantSchema = mongoose.Schema(
         require: true,
         ref: "Member",
       },
-      membership: {
+      activity: {
         type: mongoose.Schema.Types.ObjectId,
         require: true,
         ref: "Activity",
@@ -18,4 +18,4 @@ const participantSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Participant", participantSchema);
+module.exports = mongoose.model("Enrolment", enrolmentSchema);

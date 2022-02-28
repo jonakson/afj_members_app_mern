@@ -1,7 +1,15 @@
 const asyncHandler = require("express-async-handler");
 const Member = require("../models/memberModel");
+const Payment = require("../models/paymentModel");
+const Enrolment = require("../models/enrolmentModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { deleteMany } = require("../models/memberModel");
+
+// Generate JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+};
 
 // @desc    View All Members
 // @route   GET /api/v1/members
@@ -130,14 +138,133 @@ const getMe = asyncHandler(async (req, res) => {
   });
 });
 
-// Generate JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
-};
+// @desc    Delete all Members
+// @route   DELETE /api/v1/members/
+// @access  Private
+const deleteAllMembers = asyncHandler(async (req, res) => {
+  await Member.deleteMany((error, result) => {
+    if (result) {
+      res.status(200).json({
+        message: `${result.deletedCount} Members were successfully removed.`,
+      });
+    } else if (error) {
+      res.status(400);
+      throw new Error(error);
+    }
+  });
+});
+
+// @desc    Get especific Member data
+// @route   GET /api/v1/members/:id
+// @access  Private
+const viewMember = asyncHandler(async (req, res) => {
+  const member = await Member.findById(req.params.id);
+  if (member) {
+    res.status(200).json({ member });
+  } else {
+    res.status(404);
+    throw new Error("Member specified doesn't exists.");
+  }
+});
+
+// @desc    Update especific Member
+// @route   PUT /api/v1/members/:id
+// @access  Private
+const updateMember = asyncHandler(async (req, res) => {
+  try {
+    const updatedMember = await Member.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.status(200).json({ updatedMember });
+  } catch (error) {
+    res.status(500);
+    throw new Error("Member could not be updated.");
+  }
+});
+
+// @desc    Delete a Member
+// @route   DELETE /api/v1/members/:id
+// @access  Private
+const deleteMember = asyncHandler(async (req, res) => {
+  if (await Member.findByIdAndDelete(req.params.id)) {
+    res.status(200).json({ message: `Member ${req.params.id} was deleted.` });
+  } else {
+    res.status(404);
+    throw new Error("Member especified doesn't exist.");
+  }
+});
+
+// @desc    View all Payments made for a Member
+// @route   GET /api/v1/members/:id/payments
+// @access  Private
+const viewMemberPayments = asyncHandler(async (req, res) => {
+  const memberPayments = await Payment.find({ member: req.params.id }).exec();
+  if (memberPayments.length) {
+    res.status(200).json(memberPayments);
+  } else {
+    res.status(404);
+    throw new Error(`No payments found for Member ${req.params.id}`);
+  }
+});
+
+// @desc    Delete all Payments made for a Member
+// @route   DELETE /api/v1/members/:id/payments
+// @access  Private
+const deleteMemberPayments = asyncHandler(async (req, res) => {
+  if (await Payment.findOne({ member: req.params.id })) {
+    await Payment.deleteMany({ member: req.params.id });
+    res.status(200).json({
+      message: `All Payments made from Member ${req.params.id} have been deleted.`,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Member has no Payments made.");
+  }
+});
+
+// @desc    View all Enrolments for a Member
+// @route   GET /api/v1/members/:id/enrolments
+// @access  Private
+const viewMemberEnrolments = asyncHandler(async (req, res) => {
+  const memberEnrolments = await Enrolment.find({
+    member: req.params.id,
+  }).exec();
+  if (memberEnrolments.length) {
+    res.status(200).json(memberEnrolments);
+  } else {
+    res.status(404);
+    throw new Error(`No Enrolments found for Member ${req.params.id}`);
+  }
+});
+
+// @desc    Delete all Enrolments for a Member
+// @route   DELETE /api/v1/members/:id/enrolments
+// @access  Private
+const deleteMemberEnrolments = asyncHandler(async (req, res) => {
+  if (await Enrolment.findOne({ member: req.params.id })) {
+    await Enrolment.deleteMany({ member: req.params.id });
+    res.status(200).json({
+      message: `All Enrolments for Member ${req.params.id} have been deleted.`,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Member has no Enrolments.");
+  }
+});
 
 module.exports = {
-  viewAllMembers,
   registerMember,
+  viewAllMembers,
+  deleteAllMembers,
+  viewMember,
+  updateMember,
+  deleteMember,
   loginMember,
   getMe,
+  viewMemberPayments,
+  deleteMemberPayments,
+  viewMemberEnrolments,
+  deleteMemberEnrolments,
 };

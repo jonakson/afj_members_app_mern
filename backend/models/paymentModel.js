@@ -1,33 +1,29 @@
 const mongoose = require("mongoose");
 
-const PAYMENTTYPE = ["MEMBERSHIP", "ACTIVITY"];
+const LINKEDTOTYPE = ["MEMBERSHIP", "ACTIVITY"];
 
 const paymentSchema = mongoose.Schema(
   {
     member: {
-      member: {
-        type: mongoose.Schema.Types.ObjectId,
-        require: true,
-        ref: "Member",
-      },
-      membership: {
-        type: mongoose.Schema.Types.ObjectId,
-        require: true,
-        ref: "Membership",
-        ref: "Activity",
-      },
-      paymentType: {
-        type: String,
-        require: true,
-        enum: PAYMENTTYPE,
-      },
-      paymentDate: {
-        type: Date,
-        required: [true, "Please, add a the payment date."],
-      },
-      comment: {
-        type: String,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      require: true,
+      ref: "Member",
+    },
+    paymentLinkedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      require: true,
+    },
+    paymentLinkedToType: {
+      type: String,
+      require: true,
+      enum: LINKEDTOTYPE,
+    },
+    paymentDate: {
+      type: Date,
+      required: [true, "Please, add a the payment date."],
+    },
+    comments: {
+      type: String,
     },
   },
   { timestamps: true }
