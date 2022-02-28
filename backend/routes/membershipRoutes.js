@@ -1,17 +1,23 @@
 const express = require("express");
 const router = express.Router();
 const {
-  viewAllMemberships,
-  viewMembership,
   createMembership,
+  viewAllMemberships,
+  deleteAllMemberships,
+  viewMembership,
   updateMembership,
   deleteMembership,
+  viewMembershipPayments,
+  deleteMembershipPayments,
 } = require("../controllers/membershipControler");
 
-router.get("/", viewAllMemberships);
-router.get("/:id", viewMembership);
 router.post("/", createMembership);
+router.get("/", viewAllMemberships);
+router.delete("/", deleteAllMemberships);
+router.get("/:id", viewMembership);
 router.put("/:id", updateMembership);
 router.delete("/:id", deleteMembership);
+router.get("/:id/payments", viewMembershipPayments);
+router.delete("/:id/payments", deleteMembershipPayments);
 
 module.exports = router;
