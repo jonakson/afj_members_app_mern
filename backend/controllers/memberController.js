@@ -50,12 +50,7 @@ const registerMember = asyncHandler(async (req, res) => {
   ) {
     res
       .status(400)
-      .json(
-        ErrorResponse.buildResponse(
-          "missing_parameters",
-          "Input all required fields"
-        )
-      );
+      .json(ErrorResponse.missingParameters("Input all required fields"));
   }
 
   // Check if Member exists.
@@ -63,13 +58,7 @@ const registerMember = asyncHandler(async (req, res) => {
     if (await Member.findOne({ idDocumentNumber })) {
       res
         .status(400)
-        .json(
-          ErrorResponse.buildResponse(
-            "resource_already_exists",
-            "Member already exists.",
-            `A Member with an ID Number:${idDocumentNumber} already exists.`
-          )
-        );
+        .json(ErrorResponse.resourceAlreadyExists("Member already exists."));
     }
   } catch (error) {
     res.status(500);
@@ -111,15 +100,7 @@ const registerMember = asyncHandler(async (req, res) => {
         token: generateToken(member._id),
       });
     } else {
-      res
-        .status(400)
-        .json(
-          ErrorResponse.buildResponse(
-            "invalid_data",
-            "Invalid Member data.",
-            "api/v1/members"
-          )
-        );
+      res.status(400).json(ErrorResponse.invalidData("Invalid Member data."));
     }
   } catch (error) {
     res.status(500);
@@ -150,10 +131,8 @@ const loginMember = asyncHandler(async (req, res) => {
       res
         .status(401)
         .json(
-          ErrorResponse.buildResponse(
-            "invalid_credentials",
-            "Invalid credentials (ID Document and/or Password).",
-            "api/v1/members/login"
+          ErrorResponse.invalidCredentials(
+            "Invalid credentials (ID Document and/or Password)."
           )
         );
     }
@@ -163,7 +142,7 @@ const loginMember = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Get Member data
+// @desc    Get Member current data
 // @route   GET /api/v1/members/profile/current
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
@@ -173,15 +152,7 @@ const getMe = asyncHandler(async (req, res) => {
     if (member) {
       res.status(200).json(member);
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
-            "Member not found.",
-            "api/v1/members"
-          )
-        );
+      res.status(404).json(ErrorResponse.resourceNotFound("Member not found."));
     }
   } catch (error) {
     res.status(500);
@@ -203,13 +174,7 @@ const deleteAllMembers = asyncHandler(async (req, res) => {
     } else if (count === 0) {
       res
         .status(404)
-        .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
-            "No Members were found.",
-            "api/v1/members"
-          )
-        );
+        .json(ErrorResponse.resourceNotFound("No Members were found."));
     }
   } catch (error) {
     res.status(500);
@@ -239,6 +204,14 @@ const viewMember = asyncHandler(async (req, res) => {
         updatedAt: member.updatedAt,
         token: generateToken(member._id),
       });
+    } else {
+      res
+        .status(404)
+        .json(
+          ErrorResponse.resourceNotFound(
+            "The Member you are trying to access does not exist."
+          )
+        );
     }
   } catch (error) {
     res.status(500);
@@ -278,8 +251,7 @@ const updateMember = asyncHandler(async (req, res) => {
       res
         .status(404)
         .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
+          ErrorResponse.resourceNotFound(
             "The Member you are trying to update does not exist."
           )
         );
@@ -301,8 +273,7 @@ const deleteMember = asyncHandler(async (req, res) => {
       res
         .status(404)
         .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
+          ErrorResponse.resourceNotFound(
             "The Member you are trying to delete does not exist."
           )
         );
@@ -326,8 +297,7 @@ const viewMemberPayments = asyncHandler(async (req, res) => {
       res
         .status(404)
         .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
+          ErrorResponse.resourceNotFound(
             "No Payments were found for the given Member."
           )
         );
@@ -356,8 +326,7 @@ const deleteMemberPayments = asyncHandler(async (req, res) => {
       res
         .status(404)
         .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
+          ErrorResponse.resourceNotFound(
             "No Payments were found for the given Member."
           )
         );
@@ -383,8 +352,7 @@ const viewMemberEnrolments = asyncHandler(async (req, res) => {
       res
         .status(404)
         .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
+          ErrorResponse.resourceNotFound(
             "No Enrolments were found for the given Member."
           )
         );
@@ -413,8 +381,7 @@ const deleteMemberEnrolments = asyncHandler(async (req, res) => {
       res
         .status(404)
         .json(
-          ErrorResponse.buildResponse(
-            "resource_not_found",
+          ErrorResponse.resourceNotFound(
             "No Enrolments were found for the given Member."
           )
         );

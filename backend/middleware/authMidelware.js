@@ -24,10 +24,8 @@ const protect = asyncHandler(async (req, res, next) => {
       res
         .status(401)
         .json(
-          ErrorResponse.buildResponse(
-            "not_authorized",
-            "Not authorization to see this resource.",
-            ""
+          ErrorResponse.invalidCredentials(
+            "No authorization to see this resource."
           )
         );
     }
@@ -37,11 +35,7 @@ const protect = asyncHandler(async (req, res, next) => {
     res
       .status(401)
       .json(
-        ErrorResponse.buildResponse(
-          "not_authorized",
-          "Authorization Token isn't present.",
-          ""
-        )
+        ErrorResponse.invalidCredentials("Authorization Token isn't present.")
       );
   }
 });

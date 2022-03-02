@@ -1,22 +1,57 @@
-function buildResponse(type, message, comments) {
+function invalidCredentials(message) {
   return {
     error: {
-      type: type,
+      type: "invalid_credentials",
       message: message,
-      comments: comments,
+      res_code: 401,
     },
   };
 }
 
-function buildResponse(type, message) {
+function invalidData(message) {
   return {
     error: {
-      type: type,
+      type: "invalid_data",
       message: message,
+      res_code: 400,
+    },
+  };
+}
+
+function resourceAlreadyExists(message) {
+  return {
+    error: {
+      type: "resource_already_exists",
+      message: message,
+      res_code: 400,
+    },
+  };
+}
+
+function missingParameters(message) {
+  return {
+    error: {
+      type: "missing_parameters",
+      message: message,
+      res_code: 400,
+    },
+  };
+}
+
+function resourceNotFound(message) {
+  return {
+    error: {
+      type: "resource_not_found",
+      message: message,
+      res_code: 404,
     },
   };
 }
 
 module.exports = {
-  buildResponse,
+  invalidCredentials,
+  invalidData,
+  resourceAlreadyExists,
+  resourceNotFound,
+  missingParameters,
 };
