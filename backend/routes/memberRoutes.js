@@ -16,6 +16,7 @@ const {
 } = require("../controllers/memberController");
 const { protect } = require("../middleware/authMidelware");
 
+// Protect all routes *(except registerMember & loginMember)
 router.post("/", registerMember);
 router.get("/", viewAllMembers);
 router.delete("/", deleteAllMembers);

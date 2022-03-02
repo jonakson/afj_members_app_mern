@@ -189,7 +189,6 @@ const viewMembershipPayments = asyncHandler(async (req, res) => {
   }
 });
 
-// FIXME Improve error handling
 // @desc    Delete Membership Payments
 // @route   DELETE /api/v1/memberships/:id/payments
 // @access  Public

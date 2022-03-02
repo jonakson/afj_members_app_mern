@@ -11,6 +11,7 @@ const {
   deleteMembershipPayments,
 } = require("../controllers/membershipControler");
 
+// FIXME Protect all routes.
 router.post("/", createMembership);
 router.get("/", viewAllMemberships);
 router.delete("/", deleteAllMemberships);

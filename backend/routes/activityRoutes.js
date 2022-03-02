@@ -13,6 +13,7 @@ const {
   deleteActivityPayments,
 } = require("../controllers/activityController");
 
+// FIXME Protect all routes.
 router.post("/", createActivity);
 router.get("/", viewAllActivities);
 router.delete("/", deleteAllActivities);

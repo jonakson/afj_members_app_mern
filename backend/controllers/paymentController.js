@@ -4,16 +4,7 @@ const Member = require("../models/memberModel");
 const Activity = require("../models/activityModel");
 const Membership = require("../models/membershipModel");
 
-// @desc    Get All Payments
-// @route   GET /api/v1/payments
-// @access  Private
-const viewAllPayments = asyncHandler(async (req, res) => {
-  const payments = await Payment.find();
-  res.status(200).json({
-    payments,
-  });
-});
-
+// FIXME Improve Error Handling
 // @desc    Create new Payment
 // @route   POST /api/v1/payments
 // @access  Private
@@ -78,30 +69,118 @@ const createPayment = asyncHandler(async (req, res) => {
   }
 });
 
-// TO DO: This methods is pending of implementation.
-
-const viewMyPayments = asyncHandler(async (req, res) => {
+// FIXME Improve Error Handling
+// @desc    Get All Payments
+// @route   GET /api/v1/payments
+// @access  Private
+const viewAllPayments = asyncHandler(async (req, res) => {
+  const payments = await Payment.find();
   res.status(200).json({
-    message: "My Payments!",
+    payments,
   });
 });
 
+// TODO deleteAllPayments
+// @desc    Delete All Payments
+// @route   DELETE /api/v1/payments
+// @access  Private
+const deleteAllPayments = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "All Payments deleted.",
+  });
+});
+
+// TODO viewPayment
+// @desc    Get a Payment
+// @route   GET /api/v1/payments/:id
+// @access  Private
+const viewPayment = asyncHandler(async (req, res) => {
+  const payments = await Payment.find();
+  res.status(200).json({
+    message: "Viewing a Payment.",
+  });
+});
+
+// TODO updatePayment
+// @desc    Get a Payment
+// @route   PUT /api/v1/payments/:id
+// @access  Private
 const updatePayment = asyncHandler(async (req, res) => {
   res.status(200).json({
-    message: "Update Payment",
+    message: "Updating a Payment",
   });
 });
 
+// TODO deletePayment
+// @desc    Delete a Payment
+// @route   DELETE /api/v1/payments/:id
+// @access  Private
 const deletePayment = asyncHandler(async (req, res) => {
   res.status(200).json({
     message: "Delete Payment!",
   });
 });
 
+// TODO viewMyPayments
+// @desc    Get all my Payments
+// @route   GET /api/v1/payments/mypayments
+// @access  Private
+const viewMyPayments = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "Viewing my Payments!",
+  });
+});
+
+// TODO viewPaymentsFromActivities
+// @desc    Get Payments from Activities
+// @route   GET /api/v1/payments/activities
+// @access  Private
+const viewPaymentsFromActivities = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "Viewing Payments made to Activities!",
+  });
+});
+
+// TODO deletePaymentsFromActivities
+// @desc    Delete all Payments from Activities
+// @route   DELETE /api/v1/payments/activities
+// @access  Private
+const deletePaymentsFromActivities = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "All Payments made to Activities deleted!",
+  });
+});
+
+// TODO viewPaymentsFromMemberships
+// @desc    Get Payments from Memberships
+// @route   GET /api/v1/payments/memberships
+// @access  Private
+const viewPaymentsFromMemberships = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "Viewing Payments made to Memberships!",
+  });
+});
+
+// TODO deletePaymentsFromMemberships
+// @desc    Delete all Payments from Activities
+// @route   DELETE /api/v1/payments/memberships
+// @access  Private
+const deletePaymentsFromMemberships = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "All Payments made to Memberships deleted!",
+  });
+});
+
 module.exports = {
-  viewAllPayments,
-  viewMyPayments,
   createPayment,
+  viewAllPayments,
+  deleteAllPayments,
+  viewPayment,
   updatePayment,
   deletePayment,
+  viewMyPayments,
+  viewPaymentsFromActivities,
+  deletePaymentsFromActivities,
+  viewPaymentsFromMemberships,
+  deletePaymentsFromMemberships,
 };

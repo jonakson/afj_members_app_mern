@@ -3,48 +3,84 @@ const Participant = require("../models/enrolmentModel");
 const Member = require("../models/memberModel");
 const Activity = require("../models/activityModel");
 
-// @desc    Get All Participants
+// TODO createEnrolment
+// @desc    Create Enrolment
+// @route   POST /api/v1/enrolments
+// @access  Private
+const createEnrolment = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: "Create Enrolment!",
+  });
+});
+
+// TODO viewAllEnrolments
+// @desc    Get All Enrolments
 // @route   GET /api/v1/participants
 // @access  Private
 const viewAllEnrolments = asyncHandler(async (req, res) => {
   const participants = await Participant.find();
   res.status(200).json({
-    message: "All Participants!",
+    message: "Viewing all Enrolments!",
+  });
+});
+
+// TODO deleteAllEnrolments
+// @desc    Deleting All Enrolments
+// @route   DELETE /api/v1/participants
+// @access  Private
+const deleteAllEnrolments = asyncHandler(async (req, res) => {
+  const participants = await Participant.find();
+  res.status(200).json({
+    message: "All Enrolments deleted!",
   });
 });
 
 // TODO viewEnrolment
+// @desc    Get a Enrolment
+// @route   GET /api/v1/participants/:id
+// @access  Private
 const viewEnrolment = asyncHandler(async (req, res) => {
   res.status(200).json({
-    message: `Viewing participation ${req.params.id}.`,
-  });
-});
-
-// TODO createEnrolment
-const createEnrolment = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    message: "Create Participation!",
+    message: `Viewing Enrolment ${req.params.id}.`,
   });
 });
 
 // TODO updateEnrolment
+// @desc    Update a Enrolment
+// @route   PUT /api/v1/participants/:id
+// @access  Private
 const updateEnrolment = asyncHandler(async (req, res) => {
   res.status(200).json({
-    message: `Participation ${req.params.id} updated.`,
+    message: `Enrolment ${req.params.id} updated.`,
   });
 });
 
 // TODO deleteEnrolment
+// @desc    Delete a Enrolment
+// @route   DELETE /api/v1/participants/:id
+// @access  Private
 const deleteEnrolment = asyncHandler(async (req, res) => {
   res.status(200).json({
-    message: `Participation ${req.params.id} deleted.`,
+    message: `Enrolment ${req.params.id} deleted.`,
+  });
+});
+
+// TODO viewMyEnrolments
+// @desc    Get my Enrolments
+// @route   GET /api/v1/participants/myenrolments
+// @access  Private
+const viewMyEnrolments = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    message: `Viewing my Enrolments.`,
   });
 });
 
 module.exports = {
-  viewAllEnrolments,
-  viewEnrolment,
   createEnrolment,
+  viewAllEnrolments,
+  deleteAllEnrolments,
+  viewEnrolment,
   updateEnrolment,
   deleteEnrolment,
+  viewMyEnrolments,
 };
