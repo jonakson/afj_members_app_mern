@@ -154,7 +154,7 @@ const viewActivityPayments = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteActivityPayments = asyncHandler(async (req, res) => {
   res.status(200).json({
-    message: `Payments deleted for ${req.params.id}.`,
+    message: `Payments deleted for ${req.params.id}`,
   });
 });
 
