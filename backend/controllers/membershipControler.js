@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Membership = require("../models/membershipModel");
 const Payment = require("../models/paymentModel");
 
+// FIXME Improve error handling
 // @desc    Create Membership
 // @route   POST /api/v1/memberships
 // @access  Private
@@ -44,6 +45,7 @@ const createMembership = asyncHandler(async (req, res) => {
   }
 });
 
+// FIXME Improve error handling
 // @desc    View All Memberships
 // @route   GET /api/v1/memberships
 // @access  Private
@@ -52,6 +54,7 @@ const viewAllMemberships = asyncHandler(async (req, res) => {
   res.status(200).json(memberships);
 });
 
+// FIXME Improve error handling
 // @desc    View All Memberships
 // @route   DELETE /api/v1/memberships
 // @access  Private
@@ -72,6 +75,7 @@ const deleteAllMemberships = asyncHandler(async (req, res) => {
   }
 });
 
+// FIXME Improve error handling
 // @desc    View Membership
 // @route   GET /api/v1/memberships/:id
 // @access  Private
@@ -80,6 +84,7 @@ const viewMembership = asyncHandler(async (req, res) => {
   res.status(200).json(membership);
 });
 
+// FIXME Improve error handling
 // @desc    Update Membership
 // @route   PUT /api/v1/memberships/:id
 // @access  Public
@@ -103,6 +108,7 @@ const updateMembership = asyncHandler(async (req, res) => {
   }
 });
 
+// FIXME Improve error handling
 // @desc    Delete Membership
 // @route   DELETE /api/v1/memberships/:id
 // @access  Public
@@ -123,6 +129,7 @@ const deleteMembership = asyncHandler(async (req, res) => {
   }
 });
 
+// FIXME Improve error handling
 // @desc    View Membership Payments
 // @route   GET /api/v1/memberships/:id/payments
 // @access  Public
@@ -144,6 +151,7 @@ const viewMembershipPayments = asyncHandler(async (req, res) => {
   }
 });
 
+// FIXME Improve error handling
 // @desc    Delete Membership Payments
 // @route   DELETE /api/v1/memberships/:id/payments
 // @access  Public

@@ -23,7 +23,7 @@ router.get("/:id", viewMember);
 router.put("/:id", updateMember);
 router.delete("/:id", deleteMember);
 router.post("/login", loginMember);
-router.get("/me", protect, getMe);
+router.get("/profile/current", protect, getMe);
 router.get("/:id/payments", viewMemberPayments);
 router.delete("/:id/payments", deleteMemberPayments);
 router.get("/:id/enrolments", viewMemberEnrolments);
