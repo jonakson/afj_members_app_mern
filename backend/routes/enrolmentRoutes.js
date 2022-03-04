@@ -9,6 +9,7 @@ const {
   deleteEnrolment,
   viewMyEnrolments,
 } = require("../controllers/enrolmentController");
+const { protect } = require("../middleware/authMidelware");
 
 // FIXME Protect all routes.
 router.post("/", createEnrolment);
@@ -17,6 +18,6 @@ router.delete("/", deleteAllEnrolments);
 router.get("/:id", viewEnrolment);
 router.put("/:id", updateEnrolment);
 router.delete("/:id", deleteEnrolment);
-router.get("/myenrolments", viewMyEnrolments);
+router.get("/profile/myenrolments", protect, viewMyEnrolments);
 
 module.exports = router;

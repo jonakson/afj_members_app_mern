@@ -22,10 +22,10 @@ router.delete("/", deleteAllPayments);
 router.get("/:id", viewPayment);
 router.put("/:id", updatePayment);
 router.delete("/:id", deletePayment);
-router.get("/mypayments", viewMyPayments);
-router.get("/activities", viewPaymentsFromActivities);
-router.delete("/activities", deletePaymentsFromActivities);
-router.get("/memberships", viewPaymentsFromMemberships);
-router.delete("/memberships", deletePaymentsFromMemberships);
+router.get("/profile/mypayments", protect, viewMyPayments);
+router.get("/type/activities", viewPaymentsFromActivities);
+router.delete("/type/activities", deletePaymentsFromActivities);
+router.get("/type/memberships", viewPaymentsFromMemberships);
+router.delete("/type/memberships", deletePaymentsFromMemberships);
 
 module.exports = router;

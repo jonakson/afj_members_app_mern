@@ -4,69 +4,52 @@ const Payment = require("../models/paymentModel");
 const Enrolment = require("../models/enrolmentModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const ErrorResponse = require("../libs/errorHandling");
 
 // Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-// @desc    View All Members
-// @route   GET /api/v1/members
-// @access  Private
-const viewAllMembers = asyncHandler(async (req, res) => {
-  const members = await Member.find();
-  res.status(200).json(members);
-});
-
 // @desc    Register Member
 // @route   POST /api/v1/members
 // @access  Public
 const registerMember = asyncHandler(async (req, res) => {
-  // Take needed fields from the body request.
-  const {
-    idDocumentNumber,
-    email,
-    password,
-    name,
-    surname,
-    phone,
-    dob,
-    entryDate,
-    isAdmin,
-  } = req.body;
-
-  //Check if all fields are filled.
-  if (
-    !idDocumentNumber ||
-    !email ||
-    !password ||
-    !name ||
-    !surname ||
-    !phone ||
-    !dob ||
-    !entryDate ||
-    !isAdmin
-  ) {
-    res
-      .status(400)
-      .json(ErrorResponse.missingParameters("Input all required fields"));
-  }
-
-  // Check if Member exists.
   try {
-    if (await Member.findOne({ idDocumentNumber })) {
-      res
-        .status(400)
-        .json(ErrorResponse.resourceAlreadyExists("Member already exists."));
+    // Take needed fields from the body request.
+    const {
+      idDocumentNumber,
+      email,
+      password,
+      name,
+      surname,
+      phone,
+      dob,
+      entryDate,
+      isAdmin,
+    } = req.body;
+
+    //Check if all fields are filled.
+    if (
+      !idDocumentNumber ||
+      !email ||
+      !password ||
+      !name ||
+      !surname ||
+      !phone ||
+      !dob ||
+      !entryDate ||
+      !isAdmin
+    ) {
+      res.status(400);
+      throw new Error("Please add all fields.");
     }
-  } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
-  }
 
-  // Create Member.
-  try {
+    // Check if Member exists.
+    if (await Member.findOne({ idDocumentNumber })) {
+      res.status(400);
+      throw new Error("Member already exists.");
+    }
+
     // Hash the password.
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -100,63 +83,28 @@ const registerMember = asyncHandler(async (req, res) => {
         token: generateToken(member._id),
       });
     } else {
-      res.status(400).json(ErrorResponse.invalidData("Invalid Member data."));
+      res.status(400);
+      throw new Error("Invalid Member data.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
-// @desc    Authenticate Member
-// @route   POST /api/v1/members/login
+// @desc    View All Members
+// @route   GET /api/v1/members
 // @access  Private
-const loginMember = asyncHandler(async (req, res) => {
-  const { idDocumentNumber, password } = req.body;
-
+const viewAllMembers = asyncHandler(async (req, res) => {
   try {
-    // Check for member ID Document Number
-    const member = await Member.findOne({ idDocumentNumber });
-    //Check if Member was found && raw password and encripted password is the same
-    if (member && (await bcrypt.compare(password, member.password))) {
-      res.json({
-        _id: member.id,
-        idDocumentNumber: member.idDocumentNumber,
-        email: member.email,
-        name: member.name,
-        surname: member.surname,
-        token: generateToken(member._id),
-      });
+    const members = await Member.find();
+    if (members.length) {
+      res.status(200).json(members);
     } else {
-      res
-        .status(401)
-        .json(
-          ErrorResponse.invalidCredentials(
-            "Invalid credentials (ID Document and/or Password)."
-          )
-        );
+      res.status(404);
+      throw new Error("No Members were found.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
-  }
-});
-
-// @desc    Get Member current data
-// @route   GET /api/v1/members/profile/current
-// @access  Private
-const getMe = asyncHandler(async (req, res) => {
-  try {
-    const member = await Member.findById(req.member.id);
-
-    if (member) {
-      res.status(200).json(member);
-    } else {
-      res.status(404).json(ErrorResponse.resourceNotFound("Member not found."));
-    }
-  } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -171,18 +119,16 @@ const deleteAllMembers = asyncHandler(async (req, res) => {
       res.status(200).json({
         message: `${count} Members have been deleted.`,
       });
-    } else if (count === 0) {
-      res
-        .status(404)
-        .json(ErrorResponse.resourceNotFound("No Members were found."));
+    } else {
+      res.status(404);
+      throw new Error("No Members were found to delete.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
-// @desc    Get a Member
+// @desc    View a Member
 // @route   GET /api/v1/members/:id
 // @access  Private
 const viewMember = asyncHandler(async (req, res) => {
@@ -205,21 +151,15 @@ const viewMember = asyncHandler(async (req, res) => {
         token: generateToken(member._id),
       });
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "The Member you are trying to access does not exist."
-          )
-        );
+      res.status(404);
+      throw new Error("Member not found.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
-// @desc    Update especific Member
+// @desc    Update a Member
 // @route   PUT /api/v1/members/:id
 // @access  Private
 const updateMember = asyncHandler(async (req, res) => {
@@ -248,17 +188,11 @@ const updateMember = asyncHandler(async (req, res) => {
     if (updatedMember) {
       res.status(200).json(updatedMember);
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "The Member you are trying to update does not exist."
-          )
-        );
+      res.status(404);
+      throw new Error("The Member you are trying to update doesn't exist.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -270,17 +204,55 @@ const deleteMember = asyncHandler(async (req, res) => {
     if (await Member.findByIdAndDelete(req.params.id)) {
       res.status(200).json({ message: `Member ${req.params.id} was deleted.` });
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "The Member you are trying to delete does not exist."
-          )
-        );
+      res.status(404);
+      throw new Error("The Member you are trying to delete does not exist.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
+  }
+});
+
+// @desc    Login Member
+// @route   POST /api/v1/members/login
+// @access  Private
+const loginMember = asyncHandler(async (req, res) => {
+  const { idDocumentNumber, password } = req.body;
+
+  try {
+    // Check for member ID Document Number
+    const member = await Member.findOne({ idDocumentNumber });
+    if (member) {
+      //Check if raw password and encripted password is the same
+      if (await bcrypt.compare(password, member.password)) {
+        res.status(200).json({
+          _id: member.id,
+          idDocumentNumber: member.idDocumentNumber,
+          email: member.email,
+          name: member.name,
+          surname: member.surname,
+          token: generateToken(member._id),
+        });
+      } else {
+        res.status(401);
+        throw new Error("Invalid credential (User and/or Password).");
+      }
+    } else {
+      res.status(404);
+      throw new Error("ID Document number doesn't match with any Member.");
+    }
+  } catch (error) {
+    throw Error(error);
+  }
+});
+
+// @desc    Get logged-in Member data
+// @route   GET /api/v1/members/profile/current
+// @access  Private
+const getMe = asyncHandler(async (req, res) => {
+  try {
+    res.status(200).json(await Member.findById(req.member.id));
+  } catch (error) {
+    throw Error(error);
   }
 });
 
@@ -289,22 +261,23 @@ const deleteMember = asyncHandler(async (req, res) => {
 // @access  Private
 const viewMemberPayments = asyncHandler(async (req, res) => {
   try {
-    const memberPayments = await Payment.find({ member: req.params.id }).exec();
-    // Check if the given Member has any Payment
-    if (memberPayments.length) {
-      res.status(200).json(memberPayments);
+    if (await Member.findById(req.params.id)) {
+      const memberPayments = await Payment.find({
+        member: req.params.id,
+      }).exec();
+      // Check if the given Member has any Payment
+      if (memberPayments.length) {
+        res.status(200).json(memberPayments);
+      } else {
+        res.status(404);
+        throw new Error("No Payments were found for the given Member.");
+      }
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "No Payments were found for the given Member."
-          )
-        );
+      res.status(404);
+      throw new Error("Member given doesn't exists.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -313,27 +286,26 @@ const viewMemberPayments = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteMemberPayments = asyncHandler(async (req, res) => {
   try {
-    const count = await Payment.find({
-      member: req.params.id,
-    }).countDocuments();
-    // Check if any Payment was found.
-    if (count > 0) {
-      await Payment.deleteMany({ member: req.params.id });
-      res.status(200).json({
-        message: `${count} Payments made from Member ${req.params.id} have been deleted.`,
-      });
-    } else if (count === 0) {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "No Payments were found for the given Member."
-          )
-        );
+    if (await Member.findById(req.params.id)) {
+      const count = await Payment.find({
+        member: req.params.id,
+      }).countDocuments();
+      // Check if any Payment was found.
+      if (count > 0) {
+        await Payment.deleteMany({ member: req.params.id });
+        res.status(200).json({
+          message: `${count} Payments made from Member ${req.params.id} have been deleted.`,
+        });
+      } else {
+        res.status(404);
+        throw new Error("No Payments were found for the given Member.");
+      }
+    } else {
+      res.status(404);
+      throw new Error("Member given doesn't exists.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -342,24 +314,23 @@ const deleteMemberPayments = asyncHandler(async (req, res) => {
 // @access  Private
 const viewMemberEnrolments = asyncHandler(async (req, res) => {
   try {
-    const memberEnrolments = await Enrolment.find({
-      member: req.params.id,
-    }).exec();
-    // Check if the given Member has any Enrolment.
-    if (memberEnrolments.length) {
-      res.status(200).json(memberEnrolments);
+    if (await Member.findById(req.params.id)) {
+      const memberEnrolments = await Enrolment.find({
+        member: req.params.id,
+      }).exec();
+      // Check if the given Member has any Enrolment.
+      if (memberEnrolments.length) {
+        res.status(200).json(memberEnrolments);
+      } else {
+        res.status(404);
+        throw new Error("No Enrolments were found for the given Member.");
+      }
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "No Enrolments were found for the given Member."
-          )
-        );
+      res.status(404);
+      throw new Error("Member given doesn't exists.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -368,27 +339,26 @@ const viewMemberEnrolments = asyncHandler(async (req, res) => {
 // @access  Private
 const deleteMemberEnrolments = asyncHandler(async (req, res) => {
   try {
-    const count = await Enrolment.find({
-      member: req.params.id,
-    }).countDocuments();
-    // Check if any Enrolment was found.
-    if (count > 0) {
-      await Enrolment.deleteMany({ member: req.params.id });
-      res.status(200).json({
-        message: `${count} Enrolments for Member ${req.params.id} have been deleted.`,
-      });
-    } else if (count === 0) {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "No Enrolments were found for the given Member."
-          )
-        );
+    if (await Member.findById(req.params.id)) {
+      const count = await Enrolment.find({
+        member: req.params.id,
+      }).countDocuments();
+      // Check if any Enrolment was found.
+      if (count > 0) {
+        await Enrolment.deleteMany({ member: req.params.id });
+        res.status(200).json({
+          message: `${count} Enrolments for Member ${req.params.id} have been deleted.`,
+        });
+      } else {
+        res.status(404);
+        throw new Error("No Enrolments were found for the given Member.");
+      }
+    } else {
+      res.status(404);
+      throw new Error("Member given doesn't exists.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 

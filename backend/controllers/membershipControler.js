@@ -13,18 +13,14 @@ const createMembership = asyncHandler(async (req, res) => {
 
     //Check if all fields are filled.
     if (!name || !description || !durationYears || !price) {
-      res
-        .status(400)
-        .json(ErrorResponse.missingParameters("Input all required fields"));
+      res.status(400);
+      throw new Error("Input all required fields");
     }
 
     // Check if Membership exists.
     if (await Membership.findOne({ name })) {
-      res
-        .status(400)
-        .json(
-          ErrorResponse.resourceAlreadyExists("Membership already exists.")
-        );
+      res.status(400);
+      throw new Error("Membership already exists.");
     }
 
     // Create Membership.
@@ -45,13 +41,11 @@ const createMembership = asyncHandler(async (req, res) => {
         price: membership.price,
       });
     } else {
-      res
-        .status(400)
-        .json(ErrorResponse.invalidData("Invalid Membership data."));
+      res.status(400);
+      throw new Error("Invalid Membership data.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -61,14 +55,18 @@ const createMembership = asyncHandler(async (req, res) => {
 const viewAllMemberships = asyncHandler(async (req, res) => {
   try {
     const memberships = await Membership.find();
-    res.status(200).json(memberships);
+    if (memberships.length) {
+      res.status(200).json(memberships);
+    } else {
+      res.status(404);
+      throw new Error("No Memberships were found.");
+    }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
-// @desc    View All Memberships
+// @desc    Delete All Memberships
 // @route   DELETE /api/v1/memberships
 // @access  Private
 const deleteAllMemberships = asyncHandler(async (req, res) => {
@@ -79,14 +77,12 @@ const deleteAllMemberships = asyncHandler(async (req, res) => {
       res.status(200).json({
         message: `${count} Membersships have been deleted.`,
       });
-    } else if (count === 0) {
-      res
-        .status(404)
-        .json(ErrorResponse.resourceNotFound("No Memberships were found."));
+    } else {
+      res.status(404);
+      throw new Error("No Memberships were found.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -99,17 +95,11 @@ const viewMembership = asyncHandler(async (req, res) => {
     if (membership) {
       res.status(200).json(membership);
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "The Membership you are trying to access doesn't exist."
-          )
-        );
+      res.status(404);
+      throw new Error("Membership not found.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -121,22 +111,16 @@ const updateMembership = asyncHandler(async (req, res) => {
     const updatedMembership = await Membership.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
-      { new: true }
+      { returnDocument: "after" }
     );
     if (updatedMembership) {
       res.status(200).json(updatedMembership);
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "The Membership you are trying to update doesn't exist."
-          )
-        );
+      res.status(404);
+      throw new Error("The Membership you are trying to update doesn't exist.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -150,17 +134,11 @@ const deleteMembership = asyncHandler(async (req, res) => {
         message: `Membership ${req.params.id} deleted.`,
       });
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "The Membership you are trying to delete doesn't exist."
-          )
-        );
+      res.status(404);
+      throw new Error("The Membership you are trying to delete doesn't exist.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -169,23 +147,22 @@ const deleteMembership = asyncHandler(async (req, res) => {
 // @access  Private
 const viewMembershipPayments = asyncHandler(async (req, res) => {
   try {
-    const membershipPayments = await Payment.find({
-      paymentLinkedTo: req.params.id,
-    }).exec();
-    if (membershipPayments.length) {
-      res.status(200).json(membershipPayments);
+    if (await Membership.findById(req.params.id)) {
+      const membershipPayments = await Payment.find({
+        paymentLinkedTo: req.params.id,
+      }).exec();
+      if (membershipPayments.length) {
+        res.status(200).json(membershipPayments);
+      } else {
+        res.status(404);
+        throw new Error("No Payments were found for the given Membership.");
+      }
     } else {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "No Payments were found for the given Membership."
-          )
-        );
+      res.status(404);
+      throw new Error("Membership not found.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 
@@ -194,26 +171,25 @@ const viewMembershipPayments = asyncHandler(async (req, res) => {
 // @access  Public
 const deleteMembershipPayments = asyncHandler(async (req, res) => {
   try {
-    const count = await Payment.find({
-      paymentLinkedTo: req.params.id,
-    }).countDocuments();
-    if (count > 0) {
-      await Payment.deleteMany({ paymentLinkedTo: req.params.id });
-      res.status(200).json({
-        message: `${count} Payments related to Membership ${req.params.id} have been deleted.`,
-      });
-    } else if (count === 0) {
-      res
-        .status(404)
-        .json(
-          ErrorResponse.resourceNotFound(
-            "No Payments were found for the given Membership."
-          )
-        );
+    if (await Membership.findById(req.params.id)) {
+      const count = await Payment.find({
+        paymentLinkedTo: req.params.id,
+      }).countDocuments();
+      if (count > 0) {
+        await Payment.deleteMany({ paymentLinkedTo: req.params.id });
+        res.status(200).json({
+          message: `${count} Payments related to Membership ${req.params.id} have been deleted.`,
+        });
+      } else if (count === 0) {
+        res.status(404);
+        throw new Error("No Payments were found for the given Membership.");
+      }
+    } else {
+      res.status(404);
+      throw new Error("Membership not found.");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(`Something went wrong: ${error}`);
+    throw Error(error);
   }
 });
 

@@ -39,13 +39,13 @@ function missingParameters(message) {
 }
 
 function resourceNotFound(message) {
-  return {
+  throw new Error({
     error: {
       type: "resource_not_found",
       message: message,
       res_code: 404,
     },
-  };
+  });
 }
 
 module.exports = {
