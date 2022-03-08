@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { register, reset } from "../features/auth/authSlice";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -11,6 +14,7 @@ function Register() {
     phone: "",
     dob: "",
     entryDate: "",
+    isAdmin: false,
   });
 
   const {
@@ -23,7 +27,25 @@ function Register() {
     phone,
     dob,
     entryDate,
+    isAdmin,
   } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { member, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      console.log(message);
+    }
+    if (isSuccess || member) {
+      navigate("/");
+    }
+    dispatch(reset());
+  }, [member, isError, isSuccess, message, navigate, dispatch]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -34,7 +56,30 @@ function Register() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+
+    if (password !== passwordConfirm) {
+      console.log("Passwords do not match.");
+    } else {
+      const memberData = {
+        idDocumentNumber,
+        email,
+        password,
+        passwordConfirm,
+        name,
+        surname,
+        phone,
+        dob,
+        entryDate,
+        isAdmin: false,
+      };
+
+      dispatch(register(memberData));
+    }
   };
+
+  if (isLoading) {
+    return <div>Loading Data</div>;
+  }
 
   return (
     <>

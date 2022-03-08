@@ -37,8 +37,7 @@ const registerMember = asyncHandler(async (req, res) => {
       !surname ||
       !phone ||
       !dob ||
-      !entryDate ||
-      !isAdmin
+      !entryDate
     ) {
       res.status(400);
       throw new Error("Please add all fields.");
